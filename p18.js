@@ -2,7 +2,7 @@
 
 // Where expr is an array of numbers and string operators, e.g.
 // [1, "+", 2, "*" 3]
-const solveExprP1 = (expr) => {
+const solverP1 = (expr) => {
   let result = expr[0];
   for (let i = 2; i < expr.length; i += 2) {
     switch (expr[i - 1]) {
@@ -15,58 +15,42 @@ const solveExprP1 = (expr) => {
 
 // Where expr is an array of numbers and string operators, e.g.
 // [1, "+", 2, "*" 3]
-const solveExprP2 = (expr) => {
+const solverP2 = (expr) => {
   for (let i = 1; i < expr.length; i += 2) {
     if (expr[i] !== "+") continue;
     expr[i + 1] += expr[i - 1];
     expr.splice(i - 1, 2);
     i -= 2;
   }
-  return expr
-    .filter((c) => c !== "*")
-    .reduce((agg, n) => agg * n, 1);
+  return expr.filter((c) => c !== "*").reduce((agg, n) => agg * n, 1);
 };
 
-const solveLine = (original, exprSolver) => {
+const solveLine = (original, solver) => {
   // Wrapping in () makes everything easier.
-  line = `(${original})`.split("").filter((c) => c !== " ");
+  const line = `(${original})`.split("").filter((c) => c !== " ");
   const exprs = [];
   for (let i = 0; i < line.length; i++) {
-    const c = line[i];
+    let c = line[i];
     switch (c) {
-      case "(":
-        exprs.push([]);
-        break;
+      case "(": exprs.push([]); continue;
       case ")":
-        const result = exprSolver(exprs.pop());
+        c = solver(exprs.pop());
         // If the expression array is empty, we've reached the end.
-        // if (exprs.length === 0) console.log(`${original} = ${result}`);
-        if (exprs.length === 0) return result;
-        exprs[exprs.length - 1].push(result);
+        // if (exprs.length === 0) console.log(`${original} = ${c}`);
+        if (exprs.length === 0) return c;
         break;
       case "+":
-      case "*":
-        exprs[exprs.length - 1].push(c);
-        break;
-      default:
-        exprs[exprs.length - 1].push(Number(c));
-        break;
+      case "*": break;
+      default: c = Number(c); break;
     }
+    exprs[exprs.length - 1].push(c);
   }
 };
 
-const p1Answer = getInput()
-  .split(/\n/g)
-  .filter((s) => s.trim())
-  .reduce((agg, line) => agg + solveLine(line, solveExprP1), 0);
+const input = getInput().split(/\n/g).filter((s) => s.trim());
 
-const p2Answer = getInput()
-  .split(/\n/g)
-  .filter((s) => s.trim())
-  .reduce((agg, line) => agg + solveLine(line, solveExprP2), 0);
-
-console.log("part 1:", p1Answer);
-console.log("part 2:", p2Answer);
+console.log("p1:", input.reduce((agg, line) => agg + solveLine(line, solverP1), 0));
+console.log("p2:", input.reduce((agg, line) => agg + solveLine(line, solverP2), 0));
 
 function getInput() {
   /*
